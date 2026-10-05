@@ -1,439 +1,290 @@
-# Golden Tower Backend
+# Golden Tower
 
-Backend پروژه فروشگاه آنلاین **Golden Tower** با معماری REST API و با هدف مدیریت کاربران، محصولات، سبد خرید، آدرس‌ها، سفارش‌ها، پرداخت و محتوای فروشگاه توسعه داده شده است.
+A full-stack e-commerce platform for Golden Tower, designed for managing and selling tiles, ceramics, and building materials.
 
----
-
-## 📌 معرفی
-
-این Backend هسته اصلی فروشگاه Golden Tower است و ارتباط بین Frontend، پایگاه داده و سرویس پرداخت را مدیریت می‌کند.
-
-ساختار سیستم به گونه‌ای طراحی شده که منطق اصلی در Backend کنترل شود و اطلاعات حساس یا قابل اعتماد نبودنی از سمت Frontend مبنای تصمیم‌گیری قرار نگیرد.
-
-### تکنولوژی‌های اصلی
-
-- Node.js
-- Express.js
-- Sequelize ORM
-- MySQL
-- JWT
-- express-validator
-- Multer
-- Axios
-- ZarinPal
+The platform provides a complete shopping experience for customers while offering administrative tools for managing products, categories, brands, users, orders, payments, content, and store settings.
 
 ---
 
-## 🏗️ معماری پروژه
+## Overview
 
-ساختار Backend بر پایه جداسازی مسئولیت‌ها طراحی شده است:
+Golden Tower is built as a full-stack web application with a separate frontend and backend architecture.
+
+The system includes:
+
+* Customer authentication with phone number and OTP
+* JWT-based authentication
+* Role-based access control
+* Product and category management
+* Brand management
+* Shopping cart
+* Guest and authenticated carts
+* Address management
+* Order management
+* Online payment integration
+* Article and content management
+* Admin dashboard functionality
+* Product image management
+* Store settings
+* Backend validation and business logic
+* Database transactions for critical operations
+
+---
+
+## Architecture
+
+The project is organized into two main applications:
 
 ```text
-Backend
+goldentower/
 │
-├── config/        تنظیمات Database
-├── controller/    مدیریت Request و Response
-├── middleware/    Authentication، Authorization، Upload و Validation
-├── model/         مدل‌ها و روابط Database
-├── router/        تعریف API Endpointها
-├── service/       Business Logic و عملیات Database
-├── validator/     اعتبارسنجی ورودی‌ها
-├── utilitie/      توابع عمومی
-├── storage/       فایل‌های آپلود شده
-└── index.js       نقطه شروع برنامه
+├── back_end/
+│   ├── config/
+│   ├── controller/
+│   ├── middleware/
+│   ├── model/
+│   ├── router/
+│   ├── service/
+│   ├── validator/
+│   ├── utilities/
+│   └── ...
+│
+├── front_end/
+│   ├── src/
+│   ├── public/
+│   └── ...
+│
+└── README.md
 ```
 
-جریان معمول هر درخواست به شکل زیر است:
+### Application Flow
+
+```text
+                    Golden Tower
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+          Frontend                Backend
+              │                     │
+              │        REST API     │
+              └─────────────────────┘
+                         │
+                      MySQL
+```
+
+The frontend communicates with the backend through RESTful APIs.
+
+The backend is responsible for authentication, authorization, validation, business logic, database operations, and payment processing.
+
+---
+
+## Tech Stack
+
+### Frontend
+
+* React
+* JavaScript
+* REST API
+* Responsive UI
+* Client-side state management
+* API integration
+
+### Backend
+
+* Node.js
+* Express.js
+* Sequelize
+* MySQL
+* JWT
+* OTP Authentication
+* express-validator
+* Multer
+* Axios
+* ZarinPal
+
+### Architecture
+
+* RESTful API
+* Service-based business logic
+* Role-based access control
+* Database transactions
+* UUID-based public resource identification
+
+---
+
+## Core Features
+
+### Authentication
+
+Users authenticate using their phone number and OTP instead of traditional passwords.
+
+```text
+Phone Number
+     ↓
+Request OTP
+     ↓
+Verify OTP
+     ↓
+Generate JWT
+     ↓
+Authenticated User
+```
+
+JWT tokens are used to protect authenticated resources and identify users across API requests.
+
+---
+
+### Role-Based Access Control
+
+The system separates access based on user roles and permissions.
+
+Protected administrative resources require authentication and appropriate authorization.
+
+---
+
+### Product Management
+
+Products can contain information such as:
+
+* Name
+* Model
+* Description
+* Price
+* Original price
+* Discount
+* Stock
+* Category
+* Brand
+* Images
+* Size
+* Featured status
+* Product specifications
+
+Product availability, pricing, and stock are validated on the backend.
+
+---
+
+### Categories & Brands
+
+Products can be organized through categories and brands.
+
+This allows the platform to provide structured product browsing and administration.
+
+---
+
+## Shopping Cart
+
+The platform supports both guest and authenticated shopping carts.
+
+### Guest Cart
+
+Guest cart information can be maintained locally on the client.
+
+### Authenticated Cart
+
+Authenticated users have their cart stored in the backend database.
+
+When required, cart data can be synchronized between the client and the authenticated user's account.
+
+The backend revalidates product prices and stock during cart operations.
+
+---
+
+## Address Management
+
+Authenticated users can manage their delivery addresses.
+
+When an order is created, the selected address is stored as part of the order data.
+
+This creates an address snapshot so that future changes to the user's address do not modify historical orders.
+
+---
+
+## Order Management
+
+The order system manages:
+
+* Customer information
+* Order items
+* Product references
+* Quantities
+* Unit prices
+* Total amounts
+* Delivery address
+* Order status
+* Payment status
+
+### Order Flow
+
+```text
+Cart
+ ↓
+Validate Products
+ ↓
+Validate Stock
+ ↓
+Calculate Total
+ ↓
+Create Order
+ ↓
+Create Order Items
+ ↓
+Payment
+ ↓
+Payment Verification
+ ↓
+Update Order
+ ↓
+Update Stock
+ ↓
+Complete Purchase
+```
+
+All important calculations are performed on the backend rather than being trusted from the frontend.
+
+---
+
+## Online Payment
+
+The platform integrates with **ZarinPal** for online payments.
+
+The payment workflow is handled by the backend to ensure that the final amount and order state are validated securely.
 
 ```text
 Frontend
    ↓
-Router
+Create Order
    ↓
-Middleware / Authentication
-   ↓
-Validator
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Model / Database
-   ↓
-Response
-```
-
----
-
-# 🔐 احراز هویت
-
-سیستم احراز هویت بدون Password طراحی شده و از **شماره موبایل + OTP** استفاده می‌کند.
-
-### روند ورود / ثبت‌نام
-
-```text
-شماره موبایل
-      ↓
-بررسی User
-      ↓
-ایجاد یا پیدا کردن User
-      ↓
-ارسال OTP
-      ↓
-تأیید OTP
-      ↓
-ایجاد JWT
-      ↓
-ورود به سیستم
-```
-
-OTP دارای اعتبار محدود است و پس از استفاده یا منقضی شدن حذف می‌شود.
-
-JWT شامل اطلاعات مورد نیاز برای شناسایی کاربر و سطح دسترسی او است.
-
----
-
-# 🆔 معماری UUID
-
-یکی از اصول اصلی Backend این پروژه استفاده از **UUID برای ارتباط Frontend و Backend** است.
-
-شناسه‌های عددی داخلی Database مانند:
-
-```text
-user_id
-product_id
-order_id
-payment_id
-address_id
-cart_id
-```
-
-فقط در Backend و Database استفاده می‌شوند.
-
-Frontend با شناسه‌های عمومی مانند موارد زیر کار می‌کند:
-
-```text
-user_uuid
-product_uuid
-category_uuid
-brand_uuid
-address_uuid
-order_uuid
-payment_uuid
-article_uuid
-```
-
-به عنوان مثال:
-
-```text
-Frontend
-product_uuid
-    ↓
 Backend
-product_uuid → product_id
-    ↓
-Database
-```
-
-این کار باعث می‌شود ساختار داخلی Database مستقیماً در اختیار Client قرار نگیرد.
-
----
-
-# 👤 کاربران
-
-User شامل اطلاعات اصلی حساب کاربری است، از جمله:
-
-- نام و نام خانوادگی
-- شماره موبایل
-- ایمیل
-- تصویر پروفایل
-- وضعیت حساب
-- وضعیت Admin
-
-وضعیت کاربر می‌تواند شامل موارد زیر باشد:
-
-```text
-active
-inactive
-blocked
-```
-
-کاربر Block شده حتی با OTP صحیح اجازه ورود ندارد.
-
----
-
-# 🛍️ محصولات
-
-محصولات شامل اطلاعاتی مانند:
-
-- نام
-- مدل
-- قیمت فعلی
-- قیمت اصلی
-- تخفیف
-- توضیحات
-- موجودی
-- پیشنهاد ویژه
-- تصویر
-- سایز
-- دسته‌بندی
-- برند
-
-هستند.
-
-قیمت و موجودی معتبر همیشه از Backend و Database خوانده می‌شود و Frontend منبع قابل اعتماد برای این اطلاعات نیست.
-
----
-
-# 🏷️ دسته‌بندی و برند
-
-دسته‌بندی و برند به صورت جدول‌های مستقل در Database نگهداری می‌شوند.
-
-```text
-Category 1 ─── N Product
-
-Brand    1 ─── N Product
-```
-
-Frontend برای کار با آن‌ها از UUID استفاده می‌کند.
-
----
-
-# 🛒 سبد خرید
-
-سیستم سبد خرید برای دو نوع کاربر طراحی شده است.
-
-### Guest
-
-سبد خرید کاربر مهمان در `localStorage` مرورگر نگهداری می‌شود.
-
-### User
-
-پس از ورود کاربر، سبد خرید در Database نگهداری می‌شود.
-
-```text
-Guest Cart
-   ↓ Login
-LocalStorage Cart
-   ↓ Sync
-User Cart in Database
-```
-
-هنگام Sync شدن سبد خرید، Backend محصولات، موجودی و قیمت را دوباره بررسی می‌کند.
-
----
-
-# 📍 آدرس‌ها
-
-کاربر می‌تواند چند آدرس داشته باشد و یکی از آن‌ها را به عنوان آدرس پیش‌فرض انتخاب کند.
-
-اطلاعات Address شامل مواردی مانند:
-
-- عنوان آدرس
-- نام گیرنده
-- شماره گیرنده
-- استان
-- شهر
-- آدرس
-- کد پستی
-- پلاک
-- واحد
-- وضعیت پیش‌فرض
-
-است.
-
-تمام عملیات از طریق `address_uuid` انجام می‌شود و Backend مالکیت Address را نسبت به کاربر بررسی می‌کند.
-
----
-
-# 📦 سفارش
-
-Order نتیجه نهایی فرآیند خرید است.
-
-سفارش شامل اطلاعاتی مانند:
-
-- کاربر
-- آدرس
-- مبلغ
-- وضعیت سفارش
-- وضعیت پرداخت
-- اطلاعات گیرنده
-- اطلاعات سفارش
-
-است.
-
-### Snapshot آدرس
-
-هنگام ایجاد سفارش، اطلاعات آدرس انتخاب‌شده داخل Order نیز ذخیره می‌شود.
-
-این موضوع مهم است چون اگر کاربر بعداً آدرس خود را تغییر دهد، سفارش‌های قبلی نباید تغییر کنند.
-
-```text
-Address فعلی
-      ↓
-   Create Order
-      ↓
-Address Snapshot
-      ↓
-اطلاعات سفارش ثابت می‌ماند
-```
-
----
-
-# 📦 اقلام سفارش
-
-هر Order شامل یک یا چند OrderItem است.
-
-هر OrderItem اطلاعات زیر را نگهداری می‌کند:
-
-- محصول
-- تعداد
-- قیمت واحد در زمان خرید
-- قیمت کل
-
-قیمت در زمان ثبت سفارش Snapshot می‌شود تا تغییر قیمت محصول در آینده روی سفارش‌های قبلی تأثیر نگذارد.
-
----
-
-# 💳 پرداخت
-
-سیستم پرداخت با **ZarinPal** یکپارچه شده است.
-
-جریان کلی پرداخت:
-
-```text
-انتخاب Address
-      ↓
+   ↓
 Payment Request
-      ↓
-بررسی Cart
-      ↓
-محاسبه مبلغ در Backend
-      ↓
-ایجاد Order
-      ↓
-ایجاد OrderItem
-      ↓
-ایجاد Payment
-      ↓
-درخواست پرداخت از ZarinPal
-      ↓
-دریافت Authority
-      ↓
-انتقال کاربر به درگاه
-      ↓
+   ↓
+ZarinPal
+   ↓
+Payment Gateway
+   ↓
 Callback
-      ↓
-Payment Verify
-      ↓
-تأیید توسط ZarinPal
-      ↓
-کاهش موجودی
-      ↓
-Payment = paid
-      ↓
-Order = processing
-      ↓
-خالی شدن Cart
-```
-
-### شروع پرداخت
-
-```http
-POST /api/payment/request
-```
-
-Body:
-
-```json
-{
-  "address_uuid": "ADDRESS-UUID"
-}
-```
-
-### تأیید پرداخت
-
-```http
-POST /api/payment/verify
-```
-
-Body:
-
-```json
-{
-  "order_uuid": "ORDER-UUID",
-  "Authority": "AUTHORITY",
-  "Status": "OK"
-}
-```
-
-مبلغ پرداخت توسط Backend محاسبه می‌شود و Client نمی‌تواند مبلغ نهایی را تعیین کند.
-
----
-
-# 📝 مقالات
-
-سیستم Articles برای مدیریت محتوای فروشگاه استفاده می‌شود.
-
-مقالات دارای وضعیت‌های زیر هستند:
-
-```text
-draft
-published
-```
-
-محتوای مقاله به صورت JSON ذخیره می‌شود و در حال حاضر بخش‌های زیر پشتیبانی می‌شوند:
-
-```text
-paragraph
-heading
-```
-
-### Public API
-
-```http
-GET /api/articles
-GET /api/articles/:article_uuid
-```
-
-### Admin API
-
-```http
-GET    /api/articles/admin/all
-GET    /api/articles/admin/:article_uuid
-POST   /api/articles/admin
-PUT    /api/articles/admin/:article_uuid
-DELETE /api/articles/admin/:article_uuid
-PATCH  /api/articles/admin/:article_uuid/status
+   ↓
+Payment Verification
+   ↓
+Update Order
 ```
 
 ---
 
-# ⚙️ تنظیمات فروشگاه
+## Content Management
 
-Settings اطلاعات کلی فروشگاه را مدیریت می‌کند، از جمله:
+The platform includes content management functionality for store articles and related content.
 
-- نام سایت
-- عنوان سایت
-- توضیحات
-- اطلاعات تماس
-- شبکه‌های اجتماعی
-- وضعیت فروشگاه
-- تنظیمات ارسال
-- تنظیمات پرداخت
-- تنظیمات SEO
-- زبان
-- Banner صفحه اصلی
-
-این بخش فقط توسط Admin قابل مدیریت است.
+Content can be managed through administrative endpoints and can have different publication states.
 
 ---
 
-# 🖼️ آپلود تصاویر
+## Image Management
 
-آپلود تصاویر با Multer انجام می‌شود.
+Product images are handled by the backend using file upload middleware.
 
-فرمت‌های مجاز:
+Supported image formats include:
 
 ```text
 JPG
@@ -442,72 +293,41 @@ PNG
 WEBP
 ```
 
-حداکثر حجم فایل:
-
-```text
-5 MB
-```
-
-نام فایل‌ها با UUID تصادفی تولید می‌شود تا نام فایل‌ها قابل حدس و تکراری نباشند.
-
-تصاویر محصولات در مسیر زیر ذخیره می‌شوند:
-
-```text
-storage/products
-```
-
-و از مسیر زیر در دسترس هستند:
-
-```text
-/api/image
-```
+Uploaded files use generated filenames to reduce naming conflicts and predictable file paths.
 
 ---
 
-# 🛡️ امنیت و اعتبارسنجی
+## Database
 
-در Backend موارد زیر کنترل می‌شوند:
+The application uses **MySQL** as its primary relational database with **Sequelize** as the ORM.
 
-- JWT Authentication
-- Admin Authorization
-- جداسازی Guest و User
-- Validation ورودی‌ها
-- اعتبارسنجی UUID
-- محدودیت حجم فایل
-- محدودیت فرمت فایل
-- بررسی مالکیت Address
-- بررسی مالکیت Order
-- بررسی موجودی محصول
-- عدم اعتماد به قیمت Frontend
-- استفاده از Transaction در عملیات حساس
-
----
-
-# 🔄 Transaction
-
-عملیات حساس مانند ایجاد سفارش و پرداخت به صورت Transaction مدیریت می‌شوند.
-
-برای مثال:
+The database contains entities for areas such as:
 
 ```text
-Create Order
-   +
-Create OrderItems
-   +
-Create Payment
+Users
+Products
+Categories
+Brands
+Carts
+Cart Items
+Addresses
+Orders
+Order Items
+Payments
+Articles
+Settings
 ```
 
-اگر یکی از عملیات شکست بخورد، تغییرات Transaction Rollback می‌شوند.
-
----
-
-# 📊 روابط اصلی Database
+### Main Relationships
 
 ```text
 User
  ├── Cart
  ├── Address
  └── Order
+      ├── OrderItem
+      │     └── Product
+      └── Payment
 
 Category
  └── Product
@@ -517,80 +337,16 @@ Brand
 
 Cart
  └── CartItem
-      └── Product
-
-Order
- ├── OrderItem
- │    └── Product
- └── Payment
-
-Product
- ├── GeneralSpec
- └── DetailedSpec
+       └── Product
 ```
 
 ---
 
-# 🚀 نصب و اجرا
+## API
 
-## پیش‌نیازها
+The backend exposes RESTful endpoints for the main application modules.
 
-- Node.js 18+
-- MySQL 8+
-- npm
-
-## نصب
-
-```bash
-npm install
-```
-
-## تنظیم Environment
-
-فایل `.env` باید شامل تنظیمات مورد نیاز پروژه باشد، از جمله:
-
-```env
-PORT=3000
-
-DB_NAME=...
-DB_USER=...
-DB_PASS=...
-DB_HOST=...
-DB_PORT=3306
-
-JWT_SECRET=...
-
-MERCHANT_ID=...
-CALLBACK_URL=...
-```
-
-مقادیر واقعی و Secretها نباید در GitHub قرار بگیرند.
-
-## اجرا
-
-```bash
-npm start
-```
-
-در صورت وجود Script توسعه:
-
-```bash
-npm run dev
-```
-
-در زمان Startup ابتدا اتصال Database بررسی می‌شود، سپس Modelها Synchronize و بعد Server اجرا می‌شود.
-
----
-
-# 🌐 API Base URL
-
-در محیط Local معمولاً:
-
-```text
-http://localhost:3000/api
-```
-
-ساختار کلی Endpointها:
+Examples include:
 
 ```text
 /api/auth
@@ -605,11 +361,7 @@ http://localhost:3000/api
 /api/admin
 ```
 
----
-
-# 🔑 Authentication Header
-
-Endpointهای محافظت‌شده باید Token را به شکل زیر دریافت کنند:
+Authenticated endpoints use JWT authentication:
 
 ```http
 Authorization: Bearer YOUR_JWT_TOKEN
@@ -617,103 +369,234 @@ Authorization: Bearer YOUR_JWT_TOKEN
 
 ---
 
-# 🧪 سناریوی تست خرید
+## Backend Architecture
 
-برای تست کامل سیستم، ترتیب زیر پیشنهاد می‌شود:
+The backend separates HTTP handling, business logic, validation, and data access.
 
 ```text
-1. Login / OTP
-2. دریافت JWT
-3. دریافت Product
-4. افزودن Product به Cart
-5. دریافت Cart
-6. ایجاد Address
-7. انتخاب Address
-8. Payment Request
-9. انتقال به ZarinPal
-10. Callback
-11. Payment Verify
-12. بررسی Order
-13. بررسی OrderItem
-14. بررسی Payment
-15. بررسی Stock
-16. بررسی خالی شدن Cart
+Request
+  ↓
+Router
+  ↓
+Middleware
+  ↓
+Validator
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Model
+  ↓
+MySQL
+```
+
+This structure helps keep business logic independent from HTTP controllers and makes the application easier to maintain and extend.
+
+---
+
+## Frontend Architecture
+
+The frontend is responsible for:
+
+* User interface
+* Product browsing
+* Product details
+* Authentication flows
+* Shopping cart
+* Checkout
+* Order interaction
+* API communication
+* Responsive user experience
+
+The frontend does not directly access the database and communicates with the backend exclusively through the API.
+
+---
+
+## Security
+
+Security considerations include:
+
+* JWT authentication
+* Role-based authorization
+* OTP authentication
+* Input validation
+* Resource ownership validation
+* Backend-side price calculation
+* Stock validation
+* File validation
+* File size restrictions
+* Database transactions
+* Protected administrative endpoints
+* Environment-based secret management
+
+Sensitive credentials and API keys are stored in environment variables and should never be committed to the repository.
+
+---
+
+## Installation
+
+### Requirements
+
+* Node.js 18+
+* MySQL 8+
+* npm
+
+### Clone Repository
+
+```bash
+git clone https://github.com/Mohammad5831/goldentower.git
+cd goldentower
 ```
 
 ---
 
-# 👨‍💼 بخش مدیریت
+### Backend Setup
 
-Endpointهای Admin با JWT و `requireAdmin` محافظت می‌شوند.
-
-Admin می‌تواند بخش‌هایی مانند موارد زیر را مدیریت کند:
-
-- محصولات
-- دسته‌بندی‌ها
-- برندها
-- کاربران
-- مقالات
-- تنظیمات فروشگاه
-- سفارش‌ها
-
-کاربر عادی اجازه دسترسی به Endpointهای Admin را ندارد.
-
----
-
-# ⚠️ نکات مهم توسعه
-
-### 1. ID داخلی را در API استفاده نکنید
-
-به جای:
-
-```text
-/products/15
+```bash
+cd back_end
+npm install
 ```
 
-از UUID استفاده شود.
+Create a `.env` file and configure the required environment variables:
 
-### 2. به قیمت Frontend اعتماد نکنید
+```env
+PORT=3000
 
-قیمت نهایی باید در Backend محاسبه شود.
+DB_NAME=your_database
+DB_USER=your_user
+DB_PASS=your_password
+DB_HOST=localhost
+DB_PORT=3306
 
-### 3. مالکیت Resourceها بررسی شود
+JWT_SECRET=your_secret
 
-مثلاً User نباید بتواند با داشتن `address_uuid` متعلق به شخص دیگر، آن Address را مشاهده یا ویرایش کند.
+MERCHANT_ID=your_merchant_id
+CALLBACK_URL=your_callback_url
+```
 
-### 4. Controller سبک باقی بماند
+Start the backend:
 
-Queryهای Database و Business Logic اصلی باید در Service قرار داشته باشند.
+```bash
+npm start
+```
 
-### 5. تغییرات چندجدولی حساس Transaction داشته باشند
+For development:
 
----
-
-# 🔮 قابلیت‌های قابل توسعه در آینده
-
-ساختار فعلی امکان توسعه قابلیت‌هایی مانند موارد زیر را دارد:
-
-- سیستم رزرو موجودی
-- Coupon و Discount
-- سیستم تخفیف پیشرفته
-- Refund خودکار
-- سیستم Shipping پیشرفته
-- Notification
-- گزارش‌های مدیریتی
-- سیستم Wishlist
-- سیستم Review و Rating
-- Cache
-- Queue و Background Jobs
-
-این قابلیت‌ها در صورت نیاز می‌توانند بدون تغییر اساسی در معماری فعلی اضافه شوند.
+```bash
+npm run dev
+```
 
 ---
 
-# 📄 جمع‌بندی
+### Frontend Setup
 
-Backend پروژه Golden Tower یک REST API ماژولار مبتنی بر Node.js و Express.js است که با Sequelize و MySQL کار می‌کند.
+Open a second terminal:
 
-سیستم دارای احراز هویت Phone + OTP، مدیریت کاربران، محصولات، برندها، دسته‌بندی‌ها، سبد خرید، آدرس‌ها، سفارش‌ها، پرداخت آنلاین، مقالات و تنظیمات فروشگاه است.
+```bash
+cd front_end
+npm install
+```
 
-معماری پروژه بر پایه جداسازی مسئولیت‌ها، استفاده از UUID در ارتباط Client و Server، اعتبارسنجی ورودی‌ها، کنترل دسترسی و مدیریت Transaction طراحی شده است.
+Configure the frontend API URL according to your environment.
 
-هدف اصلی این ساختار، حفظ امنیت، قابل نگهداری بودن کد و فراهم کردن امکان توسعه آینده بدون پیچیده کردن غیرضروری Backend است.
+Then start the frontend using the project's configured development script.
+
+---
+
+## Development Workflow
+
+A typical local development environment consists of:
+
+```text
+Frontend
+   │
+   │ HTTP / REST API
+   ▼
+Backend
+   │
+   │ Sequelize
+   ▼
+MySQL
+```
+
+The frontend and backend can be developed independently while communicating through a clearly defined API layer.
+
+---
+
+## Project Structure
+
+```text
+goldentower/
+│
+├── back_end/
+│   ├── config/
+│   ├── controller/
+│   ├── middleware/
+│   ├── model/
+│   ├── router/
+│   ├── service/
+│   ├── validator/
+│   ├── utilities/
+│   └── ...
+│
+├── front_end/
+│   ├── src/
+│   ├── public/
+│   └── ...
+│
+├── README.md
+└── .gitignore
+```
+
+---
+
+## Development Principles
+
+The project follows several core principles:
+
+* Keep frontend and backend responsibilities separated.
+* Keep controllers lightweight.
+* Keep business logic inside services.
+* Validate external input.
+* Never trust client-side prices or stock values.
+* Validate resource ownership.
+* Use transactions for critical multi-step operations.
+* Protect administrative resources.
+* Keep secrets outside the repository.
+* Keep API contracts between frontend and backend explicit.
+
+---
+
+## Future Improvements
+
+Potential improvements include:
+
+* Advanced inventory management
+* Product reviews and ratings
+* Wishlist
+* Coupon and discount system
+* Shipping management
+* Refund management
+* Notification system
+* Admin analytics
+* Background jobs
+* Caching
+* Advanced reporting
+* Improved search and filtering
+
+---
+
+## Project Status
+
+Golden Tower is a full-stack e-commerce platform combining a React-based frontend with a Node.js/Express backend and MySQL database.
+
+The project demonstrates the implementation of a complete e-commerce workflow from product discovery and authentication to cart management, order processing, and online payment.
+
+---
+
+## License
+
+This project is proprietary software developed for Golden Tower.
+
+The source code is provided for portfolio and development reference purposes only. Unauthorized copying, modification, distribution, or commercial use is not permitted without permission.
